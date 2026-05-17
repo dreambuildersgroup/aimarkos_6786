@@ -1,10 +1,14 @@
-import React from 'react';
-import AppLayout from '@/components/AppLayout';
-import DashboardBentoGrid from './components/DashboardBentoGrid';
-import AgentStatusGrid from './components/AgentStatusGrid';
-import DashboardChartsRow from './components/DashboardChartsRow';
-import CampaignPerformanceTable from './components/CampaignPerformanceTable';
-import LiveActivityFeed from './components/LiveActivityFeed';
+import { useEffect, useState } from 'react';
+import { getAgentsStatus } from '@/lib/api';
+
+export default function CommandCenter() {
+  const [status, setStatus] = useState<any>(null);
+
+  useEffect(() => {
+    getAgentsStatus().then(setStatus).catch(console.error);
+  }, []);
+
+  // Use status.active_agents, status.roas, etc. in your dashboard cards
 
 export default function MarketingOSDashboardPage() {
   return (
