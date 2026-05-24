@@ -3,18 +3,16 @@
 import { useEffect, useState } from 'react';
 
 export default function MarketingOSDashboardPage() {
-  const [agentStatus, setAgentStatus] = useState<any>(null);
+  const [status, setStatus] = useState<any>(null);
   const [aiResult, setAiResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  // Load basic status
   useEffect(() => {
     fetch('/api/agents/status')
       .then(res => res.json())
-      .then(setAgentStatus);
+      .then(setStatus);
   }, []);
 
-  // Run AI Agents
   const runAIAgents = async () => {
     setLoading(true);
     try {
@@ -39,27 +37,44 @@ export default function MarketingOSDashboardPage() {
     <div className="min-h-screen bg-zinc-950 text-white p-8">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-4xl font-bold mb-2">Command Center</h1>
-        <p className="text-emerald-400 mb-8">
-          ✅ Backend connected • ROAS: {agentStatus?.roas || '4.21x'} • Agents: {agentStatus?.active_agents || 9}
-        </p>
+        
+        <div className="flex items-center gap-2 mb-8">
+          <span className="text-emerald-400">✅</span>
+          <span className="text-emerald-400">Backend connected from Vercel</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+          <div className="bg-zinc-900/80 backdrop-blur-xl border border-zinc-700 rounded-3xl p-6">
+            <p className="text-zinc-400 text-sm">Avg Campaign ROAS</p>
+            <p className="text-5xl font-semibold mt-2 text-emerald-400">
+              {status?.roas || '4.21x'}
+            </p>
+          </div>
+          <div className="bg-zinc-900/80 backdrop-blur-xl border border-zinc-700 rounded-3xl p-6">
+            <p className="text-zinc-400 text-sm">Active AI Agents</p>
+            <p className="text-5xl font-semibold mt-2">
+              {status?.active_agents || 9} / 12
+            </p>
+          </div>
+        </div>
 
         <button
           onClick={runAIAgents}
           disabled={loading}
-          className="px-6 py-3 bg-violet-600 hover:bg-violet-700 rounded-2xl font-medium flex items-center gap-2"
+          className="px-8 py-4 bg-violet-600 hover:bg-violet-700 rounded-3xl font-medium text-lg flex items-center gap-3 transition-colors"
         >
-          {loading ? 'Running AI Crew...' : '🚀 Run AI Agents Now'}
+          {loading ? '🚀 Running AI Crew...' : '🚀 Run Autonomous AI Agents'}
         </button>
 
         {aiResult && (
-          <div className="mt-8 bg-zinc-900/70 border border-zinc-700 rounded-3xl p-6">
-            <h2 className="font-semibold mb-3">AI Crew Result</h2>
+          <div className="mt-10 bg-zinc-900/70 border border-zinc-700 rounded-3xl p-8">
+            <h3 className="font-semibold mb-4 text-lg">AI Crew Result</h3>
             <p className="text-zinc-300 whitespace-pre-wrap">{aiResult.result}</p>
           </div>
         )}
 
-        <p className="text-zinc-500 text-sm mt-12">
-          Full glassmorphism dashboard will be restored soon.
+        <p className="text-zinc-500 text-sm mt-16">
+          Full beautiful glassmorphism dashboard coming soon.
         </p>
       </div>
     </div>
