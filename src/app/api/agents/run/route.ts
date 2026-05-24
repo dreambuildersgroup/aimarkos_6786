@@ -1,18 +1,26 @@
 import { NextResponse } from 'next/server';
 
+const BACKEND_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+
 export async function POST(request: Request) {
   try {
     const { goal } = await request.json();
+    const url = new URL(`${BACKEND_BASE}/agents/run`);
 
-    // Placeholder for now - we'll make this call real AI soon
-    const result = {
-      status: "✅ AI Crew executed",
-      goal: goal || "Launch a high-ROAS campaign",
-      result: "Multi-agent AI crew (Researcher + Optimizer + Executor) completed the task successfully. Full CrewAI integration coming in next step.",
-      timestamp: new Date().toISOString()
-    };
+    if (goal) {
+      url.searchParams.set('goal', String(goal));
+    }
 
-    return NextResponse.json(result);
+    const backendResponse = await fetch(url.toString(), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store',
+    });
+
+    const backendData = await backendResponse.json();
+    return NextResponse.json(backendData, { status: backendResponse.status });
 
   } catch (error) {
     return NextResponse.json({ 

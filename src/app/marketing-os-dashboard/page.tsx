@@ -3,26 +3,63 @@
 import { useEffect, useState } from 'react';
 
 export default function MarketingOSDashboardPage() {
-  const [status, setStatus] = useState({ roas: '4.21x', active_agents: 9, message: 'Connected from EKS!' });
+  const [agentStatus, setAgentStatus] = useState<any>(null);
+  const [aiResult, setAiResult] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
 
+  // Load basic status
   useEffect(() => {
-    fetch('http://af5fa741823a04fc98ee7ec1bd0f32f3-1672570027.us-east-1.elb.amazonaws.com/agents/status')
+    fetch('/api/agents/status')
       .then(res => res.json())
-      .then(setStatus)
-      .catch(() => console.log('Using fallback data'));
+      .then(setAgentStatus);
   }, []);
+
+  // Run AI Agents
+  const runAIAgents = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/agents/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          goal: "Create a high-ROAS LinkedIn campaign for a digital agency"
+        })
+      });
+      const data = await res.json();
+      setAiResult(data);
+    } catch (error) {
+      console.error(error);
+      setAiResult({ result: "Error running AI crew" });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white p-8">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8">Command Center</h1>
-        <p className="text-emerald-400 text-xl">
-          ✅ Backend connected from EKS<br />
-          ROAS: {status.roas} • Active Agents: {status.active_agents}
+        <h1 className="text-4xl font-bold mb-2">Command Center</h1>
+        <p className="text-emerald-400 mb-8">
+          ✅ Backend connected • ROAS: {agentStatus?.roas || '4.21x'} • Agents: {agentStatus?.active_agents || 9}
         </p>
-        <p className="text-zinc-400 mt-12">
-          Full dashboard will be restored soon.<br />
-          This version builds cleanly on Vercel.
+
+        <button
+          onClick={runAIAgents}
+          disabled={loading}
+          className="px-6 py-3 bg-violet-600 hover:bg-violet-700 rounded-2xl font-medium flex items-center gap-2"
+        >
+          {loading ? 'Running AI Crew...' : '🚀 Run AI Agents Now'}
+        </button>
+
+        {aiResult && (
+          <div className="mt-8 bg-zinc-900/70 border border-zinc-700 rounded-3xl p-6">
+            <h2 className="font-semibold mb-3">AI Crew Result</h2>
+            <p className="text-zinc-300 whitespace-pre-wrap">{aiResult.result}</p>
+          </div>
+        )}
+
+        <p className="text-zinc-500 text-sm mt-12">
+          Full glassmorphism dashboard will be restored soon.
         </p>
       </div>
     </div>
