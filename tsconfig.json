@@ -35,7 +35,7 @@
     "next-env.d.ts",
     "types/**/*.d.ts",
     ".next/next-build/types/**/*.ts"
-  ],
+, "src/app/marketing-os-dashboard/page.txs"  ],
   "exclude": [
     "node_modules"
   ]
