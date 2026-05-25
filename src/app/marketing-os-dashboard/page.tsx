@@ -15,6 +15,7 @@ export default function MarketingOSDashboardPage() {
 
   const runAIAgents = async () => {
     setLoading(true);
+    setAiResult(null); // clear previous result
     try {
       const res = await fetch('/api/agents/run', {
         method: 'POST',
@@ -69,7 +70,9 @@ export default function MarketingOSDashboardPage() {
         {aiResult && (
           <div className="mt-10 bg-zinc-900/70 border border-zinc-700 rounded-3xl p-8">
             <h3 className="font-semibold mb-4 text-lg">AI Crew Result</h3>
-            <p className="text-zinc-300 whitespace-pre-wrap">{aiResult.result}</p>
+            <p className="text-zinc-300 whitespace-pre-wrap text-sm leading-relaxed">
+              {aiResult.result}
+            </p>
           </div>
         )}
 
