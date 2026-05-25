@@ -4,10 +4,21 @@ const openaiKey = process.env.OPENAI_API_KEY;
 const anthropicKey = process.env.ANTHROPIC_API_KEY;
 const grokKey = process.env.XAI_API_KEY;
 
-async function callAI(goal: string) {
+async function callLLM(goal: string) {
+  const prompt = `You are an expert autonomous marketing AI for AImarkOS.
+User goal: ${goal}
+
+Provide a clear, actionable, high-ROAS marketing strategy including:
+- Target audience
+- Key messaging
+- Recommended channels
+- Content ideas
+- Expected outcomes
+
+Be specific, creative, and professional.`;
+
   // Priority: Claude → OpenAI → Grok
   if (anthropicKey) {
-    // Simple Claude call via fetch (you can expand later)
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -17,12 +28,12 @@ async function callAI(goal: string) {
       },
       body: JSON.stringify({
         model: "claude-3-5-sonnet-20240620",
-        max_tokens: 800,
-        messages: [{ role: "user", content: `You are an expert autonomous marketing AI. Goal: ${goal}\n\nProvide a clear, actionable marketing strategy.` }]
+        max_tokens: 1200,
+        messages: [{ role: "user", content: prompt }]
       })
     });
     const data = await response.json();
-    return data.content?.[0]?.text || "Claude responded successfully.";
+    return data.content?.[0]?.text || "Claude generated a strategy.";
   }
 
   if (openaiKey) {
@@ -33,37 +44,37 @@ async function callAI(goal: string) {
         'Authorization': `Bearer ${openaiKey}`
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [{ role: "user", content: `You are an expert autonomous marketing AI. Goal: ${goal}\n\nProvide a clear, actionable marketing strategy.` }]
+        model: "gpt-4o",
+        messages: [{ role: "user", content: prompt }]
       })
     });
     const data = await response.json();
-    return data.choices?.[0]?.message?.content || "OpenAI responded successfully.";
+    return data.choices?.[0]?.message?.content || "OpenAI generated a strategy.";
   }
 
   if (grokKey) {
-    // Grok call would go here (add later if needed)
-    return "Grok would respond here (API key present).";
+    // Grok support can be added later if needed
+    return "Grok would respond here (key present).";
   }
 
-  return "AI endpoint ready. No LLM keys configured yet.";
+  return "AI endpoint is ready. No LLM keys configured yet.";
 }
 
 export async function POST(request: Request) {
   try {
     const { goal } = await request.json();
 
-    const result = await callAI(goal || "Create a high-ROAS marketing campaign");
+    const result = await callLLM(goal || "Create a high-ROAS marketing campaign");
 
     return NextResponse.json({
       status: "✅ AI Crew executed",
       goal: goal,
       result: result,
-      model: anthropicKey ? "Claude" : openaiKey ? "GPT-4o" : "Grok",
       timestamp: new Date().toISOString()
     });
 
   } catch (error: any) {
+    console.error(error);
     return NextResponse.json({ 
       status: "❌ Error",
       error: error.message 
